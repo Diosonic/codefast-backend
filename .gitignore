@@ -1,0 +1,6 @@
+# Enviroment generated for each machine
+*.env
+venv
+
+# Python
+__pycache__
