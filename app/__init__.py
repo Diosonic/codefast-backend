@@ -10,38 +10,21 @@ db = SQLAlchemy()
 migrate = Migrate()
 mysql = MySQL()
 
-# def create_app(config_class=Config):
-#     app = Flask(__name__)
-#     app.config.from_object(config_class)
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
     
-#     db.init_app(app)
-#     migrate.init_app(app, db)
-#     # CORS(app)
-    
-  
-#     from app import models
-
-
-#     # Blueprint
-#     from app.api import bp as api_bp
-#     app.register_blueprint(api_bp, url_prefix='/api')
-
-#     return app
-
-
-app = Flask(__name__)
-# app.config.from_object(config_class)
-    
-db.init_app(app)
-migrate.init_app(app, db)
+    db.init_app(app)
+    migrate.init_app(app, db)
     # CORS(app)
     
   
-from app import models
+    from app import models
 
 
     # Blueprint
-from app.api import bp as api_bp
-app.register_blueprint(api_bp, url_prefix='/api')
+    from app.api import bp as api_bp
+    app.register_blueprint(api_bp, url_prefix='/api')
 
-
+    return app
+    
