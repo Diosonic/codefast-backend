@@ -12,3 +12,5 @@ class Config:
     SQLALCHEMY_DATABASE_URI = 'mysql://root:734946@localhost/codefast'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     CORS_HEADERS = 'Content-Type'
+    PORT = "8000"
+
