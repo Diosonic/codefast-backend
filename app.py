@@ -1,18 +1,16 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_mysqldb import MySQL
 
 
 app = Flask(__name__)
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:734946@localhost/codefast'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://peixinho:peixinho@codefast.cluster-cjb1qt4dgm8p.us-east-1.rds.amazonaws.com:3306/codefast'
 
 
 db = SQLAlchemy()
-migrate = Migrate()
-mysql = MySQL()
+migrate = Migrate(app, db)
 
 db.init_app(app)
 
@@ -20,7 +18,7 @@ db.init_app(app)
 class User(db.Model):    
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=False, nullable=False)
-    email = db.Column(db.String(120), index=True, unique=True, nullable=False)
+    email = db.Column(db.String(120), index=True, unique=False, nullable=False)
   
     def __repr__(self):
         return '<User {}, ID: {}>'.format(self.name, self.id)
