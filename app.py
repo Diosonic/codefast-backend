@@ -5,9 +5,7 @@ from flask_migrate import Migrate
 
 app = Flask(__name__)
 
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://peixinho:peixinho@codefast.cluster-cjb1qt4dgm8p.us-east-1.rds.amazonaws.com:3306/codefast'
-
 
 db = SQLAlchemy()
 migrate = Migrate(app, db)
@@ -19,7 +17,10 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=False, nullable=False)
     email = db.Column(db.String(120), index=True, unique=False, nullable=False)
-  
+    
+    # relationship field
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
+
     def __repr__(self):
         return '<User {}, ID: {}>'.format(self.name, self.id)
     
@@ -43,8 +44,18 @@ class User(db.Model):
             if field in data:
                 setattr(self, field, data[field])
 
-    
 
+class Team(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=False, nullable=False)
+    checked = db.Column(db.Boolean, default=False)
+    users = db.relationship('User', backref='team')
+
+    def __repr__(self):
+        return '<Team {}, ID: {}>'.format(self.name, self.id)
+
+
+# USERS SERVICE
 @app.route('/users', methods=['GET'])
 def get_users():
 
