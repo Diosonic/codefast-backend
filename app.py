@@ -5,13 +5,14 @@ from flask_cors import CORS
 
 
 app = Flask(__name__)
-CORS(app)
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://peixinho:peixinho@codefast.cluster-cjb1qt4dgm8p.us-east-1.rds.amazonaws.com:3306/codefast'
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 db = SQLAlchemy()
 migrate = Migrate(app, db)
+CORS(app)
 
 db.init_app(app)
 
@@ -68,7 +69,6 @@ class Team(db.Model):
                 'id': self.id,
                 'name': self.name,
                 'checked': self.checked,
-                'users': self.users
             }
 
         return data
