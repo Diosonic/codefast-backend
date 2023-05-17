@@ -1,9 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_cors import CORS
 
 
 app = Flask(__name__)
+CORS(app)
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://peixinho:peixinho@codefast.cluster-cjb1qt4dgm8p.us-east-1.rds.amazonaws.com:3306/codefast'
 app.config['CORS_HEADERS'] = 'application/json'
@@ -14,7 +17,7 @@ migrate = Migrate(app, db)
 db.init_app(app)
 
 
-class User(db.Model):    
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=False, nullable=False)
     email = db.Column(db.String(120), index=True, unique=False, nullable=False)
@@ -24,7 +27,7 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User {}, ID: {}>'.format(self.name, self.id)
-    
+
     def to_dict(self, fields=None):
         if fields:
             data = {}
@@ -39,7 +42,7 @@ class User(db.Model):
             }
 
         return data
-    
+
     def from_dict(self, data):
         for field in ['id', 'name', 'email']:
             if field in data:
@@ -82,10 +85,10 @@ class Team(db.Model):
 def get_users():
 
     users = User.query.all()
-    
+
     users_dict = [user.to_dict() for user in users]
 
-    return jsonify(users_dict)
+    return jsonify({'items': users_dict})
 
 
 @app.route('/users', methods=['POST'])
@@ -97,7 +100,7 @@ def create_user():
 
     if len(absent) > 0:
         raise Exception('Fields requireds')
-    
+
     user = User()
 
     user.from_dict(data)
