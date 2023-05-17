@@ -20,7 +20,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=False, nullable=False)
     email = db.Column(db.String(120), index=True, unique=False, nullable=False)
-    
+
     # relationship field
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
 
@@ -56,7 +56,6 @@ class Team(db.Model):
 
     def __repr__(self):
         return '<Team {}, ID: {}>'.format(self.name, self.id)
-    
 
     def to_dict(self, fields=None):
         if fields:
@@ -73,7 +72,7 @@ class Team(db.Model):
             }
 
         return data
-    
+
     def from_dict(self, data):
         for field in ['id', 'name', 'checked', 'users']:
             if field in data:
@@ -88,7 +87,7 @@ def get_users():
 
     users_dict = [user.to_dict() for user in users]
 
-    return jsonify({'items': users_dict})
+    return jsonify({'item': users_dict})
 
 
 @app.route('/users', methods=['POST'])
@@ -107,14 +106,14 @@ def create_user():
     db.session.add(user)
     db.session.commit()
 
-    return jsonify({'oret': user.to_dict()}), 201
+    return jsonify({'item': user.to_dict()}), 201
 
-    
+
 # TEAM SERVICE
 @app.route('/team', methods=['GET'])
 def get_teams():
     teams = Team.query.all()
-    
+
     teams_dict = [team.to_dict() for team in teams]
 
     return jsonify(teams_dict)
@@ -129,7 +128,7 @@ def create_team():
 
     if len(absent) > 0:
         raise Exception('Fields requireds')
-    
+
     team = Team()
 
     team.from_dict(data)
@@ -149,12 +148,10 @@ def edit_team(id):
         team.name = data['name']
     if 'checked' in data:
         team.checked = data['checked']
-    
 
     for id_user in data['users_id']:
         user = User.query.filter_by(id=id_user).first()
         user.team_id = team.id
-
 
     db.session.add(user.to_dict())
     db.session.add(team)
