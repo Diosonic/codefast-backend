@@ -117,7 +117,13 @@ def get_teams():
     
     teams_dict = [team.to_dict() for team in teams]
 
-    return jsonify(teams_dict)
+    return jsonify({'item': teams_dict})
+
+@app.route('/team/<id>', methods=['GET'])
+def get_indidivual_team(id):
+    team = Team.query.filter_by(id=id).first()
+
+    return jsonify({'item': team.to_dict()})
 
 
 @app.route('/team', methods=['POST'])
@@ -150,10 +156,11 @@ def edit_team(id):
     if 'checked' in data:
         team.checked = data['checked']
     
-
-    for id_user in data['users_id']:
-        user = User.query.filter_by(id=id_user).first()
-        user.team_id = team.id
+    
+    if 'id_user' in data:
+        for id_user in data['users_id']:
+            user = User.query.filter_by(id=id_user).first()
+            user.team_id = team.id
 
 
     db.session.add(user.to_dict())
