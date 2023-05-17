@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://peixinho:peixinho@codefast.cluster-cjb1qt4dgm8p.us-east-1.rds.amazonaws.com:3306/codefast'
+app.config['CORS_HEADERS'] = 'application/json'
 
 db = SQLAlchemy()
 migrate = Migrate(app, db)
@@ -66,7 +67,6 @@ class Team(db.Model):
                 'id': self.id,
                 'name': self.name,
                 'checked': self.checked,
-                'users': self.users
             }
 
         return data
