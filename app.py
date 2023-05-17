@@ -66,10 +66,13 @@ class Team(db.Model):
                 if field in self.__dict__.keys():
                     data.update({field: self.__dict__[field]})
         else:
+            users_dict = [user.to_dict() for user in self.users]
+
             data = {
                 'id': self.id,
                 'name': self.name,
                 'checked': self.checked,
+                'users': users_dict
             }
 
         return data
@@ -88,7 +91,7 @@ def get_users():
 
     users_dict = [user.to_dict() for user in users]
 
-    return jsonify({'items': users_dict})
+    return jsonify({'item': users_dict})
 
 
 @app.route('/users', methods=['POST'])
@@ -157,13 +160,11 @@ def edit_team(id):
         team.checked = data['checked']
     
     
-    if 'id_user' in data:
-        for id_user in data['users_id']:
+    if 'id_users' in data:
+        for id_user in data['id_users']:
             user = User.query.filter_by(id=id_user).first()
             user.team_id = team.id
 
-
-    db.session.add(user.to_dict())
     db.session.add(team)
     db.session.commit()
 
