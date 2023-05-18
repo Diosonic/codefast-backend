@@ -147,7 +147,7 @@ def create_team():
     db.session.add(team)
     db.session.commit()
 
-    return jsonify({'oret': team.to_dict()}), 201
+    return jsonify({'item': team.to_dict()}), 201
 
 
 @app.route('/team/<id>', methods=['PUT'])
@@ -167,8 +167,7 @@ def edit_team(id):
             user = User.query.filter_by(id=id_user).first()
             user.team_id = team.id
 
-    db.session.add(user.to_dict())
     db.session.add(team)
     db.session.commit()
 
-    return jsonify({'oret': team.to_dict()}), 201
+    return jsonify({'item': team.to_dict()}), 201
