@@ -53,6 +53,9 @@ class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=False, nullable=False)
     checked = db.Column(db.Boolean, default=False)
+    validationInProgress = db.Column(db.Boolean, default=False)
+    validation = db.Column(db.Boolean, default=False)
+    unplaced = db.Column(db.Boolean, default=False)
     users = db.relationship('User', backref='team')
 
     def __repr__(self):
