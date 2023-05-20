@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -53,9 +54,10 @@ class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=False, nullable=False)
     checked = db.Column(db.Boolean, default=False)
-    validationInProgress = db.Column(db.Boolean, default=False)
-    validation = db.Column(db.Boolean, default=False)
+    validation = db.Column(db.String(64), default=False)
     unplaced = db.Column(db.Boolean, default=False)
+    points = db.Column(db.Integer, default=0, nullable=False)
+    time = db.Column(db.DateTime, default=datetime.now)
     users = db.relationship('User', backref='team')
 
     def __repr__(self):
@@ -74,13 +76,17 @@ class Team(db.Model):
                 'id': self.id,
                 'name': self.name,
                 'checked': self.checked,
-                'users': users_dict
+                'users': users_dict,
+                "validation": self.validation,
+                "unplaced": self.unplaced,
+                "time": self.time,
+                "points": self.points
             }
 
         return data
 
     def from_dict(self, data):
-        for field in ['id', 'name', 'checked', 'users']:
+        for field in ['id', 'name', 'checked', 'users', 'points', 'time']:
             if field in data:
                 setattr(self, field, data[field])
 
@@ -124,6 +130,7 @@ def get_teams():
 
     return jsonify({'item': teams_dict})
 
+
 @app.route('/team/<id>', methods=['GET'])
 def get_indidivual_team(id):
     team = Team.query.filter_by(id=id).first()
@@ -160,7 +167,16 @@ def edit_team(id):
         team.name = data['name']
     if 'checked' in data:
         team.checked = data['checked']
-    
+    if 'validation' in data:
+        team.validation = data['validation']
+    if 'points' in data:
+        team.points = data['points']
+
+    if 'time' in data and data['time'] != None:
+        team.time = datetime.strptime(data['time'], '%a, %d %b %Y %H:%M:%S %Z')
+    if data['time'] is None:
+        team.time = None
+
     
     if 'id_users' in data:
         for id_user in data['id_users']:
