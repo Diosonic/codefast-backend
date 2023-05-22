@@ -54,10 +54,10 @@ class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=False, nullable=False)
     checked = db.Column(db.Boolean, default=False)
-    validation = db.Column(db.String(64), default=False)
+    validation = db.Column(db.String(64), default="Em progresso")
     unplaced = db.Column(db.Boolean, default=False)
     points = db.Column(db.Integer, default=0, nullable=False)
-    time = db.Column(db.DateTime, default=datetime.now)
+    time = db.Column(db.Integer, default=0)
     users = db.relationship('User', backref='team')
 
     def __repr__(self):
@@ -171,11 +171,10 @@ def edit_team(id):
         team.validation = data['validation']
     if 'points' in data:
         team.points = data['points']
+    if 'time' in data:
+        team.time = data['time']
 
-    if 'time' in data and data['time'] != None:
-        team.time = datetime.strptime(data['time'], '%a, %d %b %Y %H:%M:%S %Z')
-    if data['time'] is None:
-        team.time = None
+    
 
     
     if 'id_users' in data:
