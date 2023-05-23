@@ -76,6 +76,7 @@ class Team(db.Model):
         else:
             data = {
                 'id': self.id,
+                'seed_id': self.seed_id,
                 'name': self.name,
                 'checked': self.checked,
                 'users': [user.to_dict() for user in self.users],
@@ -88,7 +89,7 @@ class Team(db.Model):
         return data
 
     def from_dict(self, data):
-        for field in ['id', 'name', 'checked', 'users', 'points', 'time']:
+        for field in ['id', 'name', 'checked', 'users', 'points', 'time', 'seed_id']:
             if field in data:
                 setattr(self, field, data[field])
 
@@ -145,6 +146,7 @@ class Seed(db.Model):
         else:
             data = {
                 'id': self.id,
+                'round_id': self.round_id,
                 'date_match': self.date_match,
                 'teams': [team.to_dict() for team in self.teams],
             }
@@ -152,7 +154,7 @@ class Seed(db.Model):
         return data
 
     def from_dict(self, data):
-        for field in ['id', 'date_match']:
+        for field in ['id', 'date_match', 'round_id']:
             if field in data:
                 setattr(self, field, data[field])
 
@@ -208,7 +210,7 @@ def get_indidivual_team(id):
 def create_team():
     data = request.get_json() or {}
 
-    requireds = ['name']
+    requireds = ['name', 'seed_id']
     absent = [field for field in requireds if field not in data]
 
     if len(absent) > 0:
@@ -239,6 +241,8 @@ def edit_team(id):
         team.points = data['points']
     if 'time' in data:
         team.time = data['time']
+    if 'seed_id' in data:
+        team.seed_id = data['seed_id']
 
     if 'id_users' in data:
         for id_user in data['id_users']:
