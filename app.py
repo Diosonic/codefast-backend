@@ -124,7 +124,7 @@ def create_user():
 # TEAM SERVICE
 @app.route('/team', methods=['GET'])
 def get_teams():
-    teams = Team.query.all()
+    teams = Team.query.order_by(Team.points.desc()).all()
 
     teams_dict = [team.to_dict() for team in teams]
 
