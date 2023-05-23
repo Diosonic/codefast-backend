@@ -58,6 +58,10 @@ class Team(db.Model):
     unplaced = db.Column(db.Boolean, default=False)
     points = db.Column(db.Integer, default=0, nullable=False)
     time = db.Column(db.Integer, default=0)
+
+    # relationship fields
+    seed_id = db.Column(db.Integer, db.ForeignKey('seed.id'))
+
     users = db.relationship('User', backref='team')
 
     def __repr__(self):
@@ -70,13 +74,11 @@ class Team(db.Model):
                 if field in self.__dict__.keys():
                     data.update({field: self.__dict__[field]})
         else:
-            users_dict = [user.to_dict() for user in self.users]
-
             data = {
                 'id': self.id,
                 'name': self.name,
                 'checked': self.checked,
-                'users': users_dict,
+                'users': [user.to_dict() for user in self.users],
                 "validation": self.validation,
                 "unplaced": self.unplaced,
                 "time": self.time,
@@ -87,6 +89,70 @@ class Team(db.Model):
 
     def from_dict(self, data):
         for field in ['id', 'name', 'checked', 'users', 'points', 'time']:
+            if field in data:
+                setattr(self, field, data[field])
+
+
+class Round(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(150))
+
+    seeds = db.relationship('Seed', backref='Round')
+
+    def __repr__(self):
+        return '<Round {}, ID: {}>'.format(self.title, self.id)
+
+    def to_dict(self, fields=None):
+        if fields:
+            data = {}
+            for field in fields:
+                if field in self.__dict__.keys():
+                    data.update({field: self.__dict__[field]})
+        else:
+
+            data = {
+                'id': self.id,
+                'title': self.title,
+                'seeds': [seed.to_dict() for seed in self.seeds],
+            }
+
+        return data
+
+    def from_dict(self, data):
+        for field in ['id', 'title']:
+            if field in data:
+                setattr(self, field, data[field])
+
+
+class Seed(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_match = db.Column(db.DateTime)
+
+    # relationship fields
+    round_id = db.Column(db.Integer, db.ForeignKey('round.id'))
+
+    teams = db.relationship('Team', backref='seed')
+
+    def __repr__(self):
+        return '<Seed {}, ID: {}>'.format(self.date_match, self.id)
+
+    def to_dict(self, fields=None):
+        if fields:
+            data = {}
+            for field in fields:
+                if field in self.__dict__.keys():
+                    data.update({field: self.__dict__[field]})
+        else:
+            data = {
+                'id': self.id,
+                'date_match': self.date_match,
+                'teams': [team.to_dict() for team in self.teams],
+            }
+
+        return data
+
+    def from_dict(self, data):
+        for field in ['id', 'date_match']:
             if field in data:
                 setattr(self, field, data[field])
 
@@ -174,9 +240,6 @@ def edit_team(id):
     if 'time' in data:
         team.time = data['time']
 
-    
-
-    
     if 'id_users' in data:
         for id_user in data['id_users']:
             user = User.query.filter_by(id=id_user).first()
@@ -186,3 +249,57 @@ def edit_team(id):
     db.session.commit()
 
     return jsonify({'item': team.to_dict()}), 201
+
+
+# ROUND SERVICE
+@app.route('/rounds', methods=['GET'])
+def get_rounds():
+
+    rounds = Round.query.all()
+
+    rounds_dict = [round.to_dict() for round in rounds]
+
+    return jsonify({'item': rounds_dict})
+
+
+@app.route('/rounds', methods=['POST'])
+def create_round():
+    data = request.get_json() or {}
+
+    requireds = ['title']
+    absent = [field for field in requireds if field not in data]
+
+    if len(absent) > 0:
+        raise Exception('Fields requireds')
+
+    rounds = Round()
+
+    rounds.from_dict(data)
+    db.session.add(rounds)
+    db.session.commit()
+
+    return jsonify({'item': rounds.to_dict()}), 201
+
+
+# SEEDS SERVICE
+@app.route('/seeds', methods=['GET'])
+def get_seeds():
+
+    seeds = Seed.query.all()
+
+    seeds_dict = [seed.to_dict() for seed in seeds]
+
+    return jsonify({'item': seeds_dict})
+
+
+@app.route('/seeds', methods=['POST'])
+def create_seed():
+    data = request.get_json() or {}
+
+    seeds = Seed()
+
+    seeds.from_dict(data)
+    db.session.add(seeds)
+    db.session.commit()
+
+    return jsonify({'item': seeds.to_dict()}), 201
