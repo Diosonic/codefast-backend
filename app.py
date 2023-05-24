@@ -18,6 +18,13 @@ CORS(app)
 db.init_app(app)
 
 
+
+
+team_has_seed = db.Table('team_has_seed',
+    db.Column('team_id', db.Integer, db.ForeignKey('team.id'), primary_key=True),
+    db.Column('seed_id', db.Integer, db.ForeignKey('seed.id'), primary_key=True),
+)
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=False, nullable=False)
@@ -60,7 +67,8 @@ class Team(db.Model):
     time = db.Column(db.Integer, default=0)
 
     # relationship fields
-    seed_id = db.Column(db.Integer, db.ForeignKey('seed.id'))
+    # seed_id = db.Column(db.Integer, db.ForeignKey('seed.id'))
+    seeds = db.relationship('Seed', secondary=team_has_seed, backref='seeds')
 
     users = db.relationship('User', backref='team')
 
@@ -76,7 +84,7 @@ class Team(db.Model):
         else:
             data = {
                 'id': self.id,
-                'seed_id': self.seed_id,
+                # 'seed_id': self.seed_id,
                 'name': self.name,
                 'checked': self.checked,
                 'users': [user.to_dict() for user in self.users],
@@ -132,7 +140,7 @@ class Seed(db.Model):
     # relationship fields
     round_id = db.Column(db.Integer, db.ForeignKey('round.id'))
 
-    teams = db.relationship('Team', backref='seed')
+    # teams = db.relationship('Team', backref='seed')
 
     def __repr__(self):
         return '<Seed {}, ID: {}>'.format(self.date_match, self.id)
@@ -148,7 +156,7 @@ class Seed(db.Model):
                 'id': self.id,
                 'round_id': self.round_id,
                 'date_match': self.date_match,
-                'teams': [team.to_dict() for team in self.teams],
+                # 'teams': [team.to_dict() for team in self.teams],
             }
 
         return data
