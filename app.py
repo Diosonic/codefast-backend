@@ -279,6 +279,8 @@ def edit_team(id):
         team.time = data['time']
     if 'seed_id' in data:
         team.seed_id = data['seed_id']
+    if 'unplaced' in data:
+        team.unplaced = data['unplaced']
 
     if 'id_users' in data:
         for id_user in data['id_users']:
