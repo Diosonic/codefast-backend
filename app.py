@@ -68,7 +68,6 @@ class Team(db.Model):
 
     # relationship fields
     # seed_id = db.Column(db.Integer, db.ForeignKey('seed.id'))
-    seeds = db.relationship('Seed', secondary=team_has_seed, backref='seeds')
 
     users = db.relationship('User', backref='team')
 
@@ -141,6 +140,7 @@ class Seed(db.Model):
     round_id = db.Column(db.Integer, db.ForeignKey('round.id'))
 
     # teams = db.relationship('Team', backref='seed')
+    teams = db.relationship('Team', secondary=team_has_seed, backref='teams')
 
     def __repr__(self):
         return '<Seed {}, ID: {}>'.format(self.date_match, self.id)
@@ -156,7 +156,7 @@ class Seed(db.Model):
                 'id': self.id,
                 'round_id': self.round_id,
                 'date_match': self.date_match,
-                # 'teams': [team.to_dict() for team in self.teams],
+                'teams': [team.to_dict() for team in self.teams],
             }
 
         return data
@@ -359,6 +359,25 @@ def create_seed():
     db.session.commit()
 
     return jsonify({'item': seeds.to_dict()}), 201
+
+
+@app.route('/seeds/team', methods=['POST'])
+def create_seeds_has_team():
+    data = request.get_json()
+
+    seed_id = data.get('seed_id')
+    team_id = data.get('team_id')
+
+    seed = Seed.query.get(seed_id)
+    team = Team.query.get(team_id)
+
+    if not seed or not team:
+        return jsonify({'message': 'Livro ou autor não encontrado'}), 404
+
+    seed.teams.append(team)
+    db.session.commit()
+
+    return jsonify({'item': seed.to_dict()}), 201
 
 
 # CLASSIFICATION SCORE SERVICE
