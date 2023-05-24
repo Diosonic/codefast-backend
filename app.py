@@ -210,7 +210,7 @@ def get_indidivual_team(id):
 def create_team():
     data = request.get_json() or {}
 
-    requireds = ['name', 'seed_id']
+    requireds = ['name']
     absent = [field for field in requireds if field not in data]
 
     if len(absent) > 0:
@@ -266,6 +266,14 @@ def get_rounds():
     return jsonify({'item': rounds_dict})
 
 
+@app.route('/rounds/<id>', methods=['GET'])
+def get_round(id):
+
+    rounds = Round.query.filter_by(id=id).first()
+
+    return jsonify({'item': rounds.to_dict()})
+
+
 @app.route('/rounds', methods=['POST'])
 def create_round():
     data = request.get_json() or {}
@@ -293,6 +301,14 @@ def get_seeds():
 
     seeds_dict = [seed.to_dict() for seed in seeds]
 
+    return jsonify({'item': seeds_dict})
+
+
+@app.route('/seeds/round/<round_id>', methods=['GET'])
+def get_seed(round_id):
+
+    seeds = Seed.query.filter_by(round_id=round_id).all()
+    seeds_dict = [seed.to_dict() for seed in seeds]
     return jsonify({'item': seeds_dict})
 
 
