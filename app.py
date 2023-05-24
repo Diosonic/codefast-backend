@@ -167,6 +167,34 @@ class Seed(db.Model):
                 setattr(self, field, data[field])
 
 
+class ClassificationScore(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    in_progress = db.Column(db.Boolean, default=False)
+
+    def __repr__(self):
+        return '<Round ID: {}>'.format(self.id)
+
+    def to_dict(self, fields=None):
+        if fields:
+            data = {}
+            for field in fields:
+                if field in self.__dict__.keys():
+                    data.update({field: self.__dict__[field]})
+        else:
+
+            data = {
+                'id': self.id,
+                'in_progress': self.in_progress,
+            }
+
+        return data
+
+    def from_dict(self, data):
+        for field in ['id', 'in_progress']:
+            if field in data:
+                setattr(self, field, data[field])
+
+
 # USERS SERVICE
 @app.route('/users', methods=['GET'])
 def get_users():
@@ -331,3 +359,27 @@ def create_seed():
     db.session.commit()
 
     return jsonify({'item': seeds.to_dict()}), 201
+
+
+# CLASSIFICATION SCORE SERVICE
+@app.route('/classification/progress', methods=['GET'])
+def get_progress():
+    
+    classification_score = ClassificationScore.query.first()
+
+    return jsonify({'item': classification_score.to_dict()})
+
+
+@app.route('/classification/<id>', methods=['PUT'])
+def change_progress(id):
+    data = request.get_json() or {}
+
+    classification = ClassificationScore.query.filter_by(id=id).first()
+
+    if 'in_progress' in data:
+        classification.in_progress = data['in_progress']
+
+    db.session.add(classification)
+    db.session.commit()
+
+    return jsonify({'item': classification.to_dict()}), 201
