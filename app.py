@@ -294,6 +294,17 @@ def edit_team(id):
     return jsonify({'item': team.to_dict()}), 201
 
 
+@app.route('/team/<int:id_team>', methods=['DELETE'])
+def delete_team(id_team):
+
+    team = Team.query.filter_by(id=id_team).first()
+
+    db.session.delete(team)
+    db.session.commit()
+    
+    return (''), 204
+
+
 # ROUND SERVICE
 @app.route('/rounds', methods=['GET'])
 def get_rounds():
