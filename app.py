@@ -66,6 +66,7 @@ class Team(db.Model):
     unplaced = db.Column(db.Boolean, default=False)
     points = db.Column(db.Integer, default=0, nullable=False)
     time = db.Column(db.Integer, default=0)
+    knockout_points = db.Column(db.Integer, default=0)
 
     # relationship fields
     # seed_id = db.Column(db.Integer, db.ForeignKey('seed.id'))
@@ -91,13 +92,14 @@ class Team(db.Model):
                 "validation": self.validation,
                 "unplaced": self.unplaced,
                 "time": self.time,
-                "points": self.points
+                "points": self.points,
+                "knockout_points": self.knockout_points
             }
 
         return data
 
     def from_dict(self, data):
-        for field in ['id', 'name', 'checked', 'users', 'points', 'time', 'seed_id']:
+        for field in ['id', 'name', 'checked', 'users', 'points', 'time', 'seed_id', 'knockout_points', 'unplaced']:
             if field in data:
                 setattr(self, field, data[field])
 
@@ -188,7 +190,7 @@ class ClassificationScore(db.Model):
                 'in_progress': self.in_progress,
             }
 
-        return data
+        return data 
 
     def from_dict(self, data):
         for field in ['id', 'in_progress']:
@@ -282,6 +284,8 @@ def edit_team(id):
         team.seed_id = data['seed_id']
     if 'unplaced' in data:
         team.unplaced = data['unplaced']
+    if 'knockout_points' in data:
+        team.knockout_points = data['knockout_points']
 
     if 'id_users' in data:
         for id_user in data['id_users']:
