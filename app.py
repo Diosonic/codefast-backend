@@ -226,6 +226,17 @@ def create_user():
     return jsonify({'item': user.to_dict()}), 201
 
 
+@app.route('/users/<int:id_user>', methods=['DELETE'])
+def delete_user(id_user):
+
+    user = User.query.filter_by(id=id_user).first()
+
+    db.session.delete(user)
+    db.session.commit()
+    
+    return (''), 204
+
+
 # TEAM SERVICE
 @app.route('/team', methods=['GET'])
 def get_teams():
