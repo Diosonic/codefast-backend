@@ -18,12 +18,13 @@ CORS(app)
 db.init_app(app)
 
 
-
-
 team_has_seed = db.Table('team_has_seed',
-    db.Column('team_id', db.Integer, db.ForeignKey('team.id'), primary_key=True),
-    db.Column('seed_id', db.Integer, db.ForeignKey('seed.id'), primary_key=True),
-)
+                         db.Column('team_id', db.Integer, db.ForeignKey(
+                             'team.id'), primary_key=True),
+                         db.Column('seed_id', db.Integer, db.ForeignKey(
+                             'seed.id'), primary_key=True),
+                         )
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -331,6 +332,16 @@ def create_round():
     return jsonify({'item': rounds.to_dict()}), 201
 
 
+@app.route('/rounds/<int:id_round>', methods=['DELETE'])
+def delete_round(id_round):
+
+    round = Round.query.filter_by(id=id_round).first()
+
+    db.session.delete(round)
+    db.session.commit()
+    return (''), 204
+
+
 # SEEDS SERVICE
 @app.route('/seeds', methods=['GET'])
 def get_seeds():
@@ -382,10 +393,29 @@ def create_seeds_has_team():
     return jsonify({'item': seed.to_dict()}), 201
 
 
+@app.route('/seeds/team', methods=['PUT'])
+def delete_seeds_has_team():
+    data = request.get_json()
+
+    seed_id = data.get('seed_id')
+    team_id = data.get('team_id')
+
+    seed = Seed.query.get(seed_id)
+    team = Team.query.get(team_id)
+
+    if not seed or not team:
+        return jsonify({'message': 'Livro ou autor não encontrado'}), 404
+
+    seed.teams.remove(team)
+    db.session.commit()
+
+    return jsonify({'item': seed.to_dict()}), 200
+
+
 # CLASSIFICATION SCORE SERVICE
 @app.route('/classification/progress', methods=['GET'])
 def get_progress():
-    
+
     classification_score = ClassificationScore.query.first()
 
     return jsonify({'item': classification_score.to_dict()})
